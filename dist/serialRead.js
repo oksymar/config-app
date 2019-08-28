@@ -7,10 +7,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const parser_readline_1 = __importDefault(require("@serialport/parser-readline"));
 exports.SerialRead = (port, eventEmitter) => {
     const parser = port.pipe(new parser_readline_1.default({ delimiter: "\r\n" }));
-    parser.on("data", (msg) => {
+    parser.on("data", (data) => {
         try {
-            const parsedMsg = JSON.parse(msg);
-            eventEmitter.emit(`msgId-${parsedMsg.id}`, parsedMsg.msg);
+            eventEmitter.emit(`msgId-${data.id}`, data.msg);
         }
         catch (err) {
             console.log(err.msg);

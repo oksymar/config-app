@@ -8,11 +8,10 @@ export const CommandRoutes = (
   port: SerialPort,
   eventEmitter: events.EventEmitter
 ) => {
-  app.get("/command/set", (req, res) => {
-    const { isWriteSucceed, id } = SerialWrite(port, "blablabla");
+  app.post("/api/command/custom", (req, res) => {
+    const { isWriteSucceed, id } = SerialWrite(port, req.body.command);
     if (isWriteSucceed) {
       eventEmitter.once(`msgId-${id}`, (msg: string) => {
-        console.log(msg);
         res.status(200).send("Ok");
       });
     } else {

@@ -13,10 +13,9 @@ export const SerialRead = (
   eventEmitter: events.EventEmitter
 ) => {
   const parser = port.pipe(new Readline({ delimiter: "\r\n" }));
-  parser.on("data", (msg: string) => {
+  parser.on("data", (data: SerialMsgType) => {
     try {
-      const parsedMsg: SerialMsgType = JSON.parse(msg);
-      eventEmitter.emit(`msgId-${parsedMsg.id}`, parsedMsg.msg);
+      eventEmitter.emit(`msgId-${data.id}`, data.msg);
     } catch (err) {
       console.log(err.msg);
       return;
