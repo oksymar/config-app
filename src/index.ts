@@ -4,6 +4,7 @@ import express from "express";
 import path from "path";
 import SerialPort from "serialport";
 import { CommandRoutes } from "./routes/commandRoutes";
+import { ConnectRoute } from "./routes/connectRoute";
 import { SerialRead } from "./serialRead.js";
 
 const app = express();
@@ -11,19 +12,38 @@ const portNumber = 9000; // default port to listen
 const eventEmitter = new events.EventEmitter();
 
 const serialPortName = "COM6";
-const port = new SerialPort(serialPortName, { baudRate: 9600 });
-
-port.on("close", (err: TypeError) => {
-  console.log("Error: ", err.message);
+const serialPort = new SerialPort(serialPortName, {
+  autoOpen: false,
+  baudRate: 9600
 });
 
-port.on("error", (err: TypeError) => {
-  console.log("Error: ", err.message);
+serialPort.on("open", () => {
+  console.log("open");
 });
 
-SerialRead(port, eventEmitter);
+serialPort.on("close", () => {
+  console.log("close");
+  setTimeout(() => reconnect(), 5000);
+});
+
+serialPort.on("error", (err) => {
+  console.log("error");
+  console.log(err);
+  setTimeout(() => reconnect(), 5000);
+});
+
+serialPort.open();
+
+const reconnect = () => {
+  if (!serialPort.isOpen) {
+    serialPort.open();
+  }
+};
+
+SerialRead(serialPort, eventEmitter);
 app.use(bodyParser.json());
-CommandRoutes(app, port, eventEmitter);
+CommandRoutes(app, serialPort, eventEmitter);
+ConnectRoute(app, serialPort, eventEmitter);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static("client/build"));

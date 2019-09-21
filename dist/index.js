@@ -9,21 +9,38 @@ const express_1 = __importDefault(require("express"));
 const path_1 = __importDefault(require("path"));
 const serialport_1 = __importDefault(require("serialport"));
 const commandRoutes_1 = require("./routes/commandRoutes");
+const connectRoute_1 = require("./routes/connectRoute");
 const serialRead_js_1 = require("./serialRead.js");
 const app = express_1.default();
 const portNumber = 9000; // default port to listen
 const eventEmitter = new events_1.default.EventEmitter();
 const serialPortName = "COM6";
-const port = new serialport_1.default(serialPortName, { baudRate: 9600 });
-port.on("close", (err) => {
-    console.log("Error: ", err.message);
+const serialPort = new serialport_1.default(serialPortName, {
+    autoOpen: false,
+    baudRate: 9600
 });
-port.on("error", (err) => {
-    console.log("Error: ", err.message);
+serialPort.on("open", () => {
+    console.log("open");
 });
-serialRead_js_1.SerialRead(port, eventEmitter);
+serialPort.on("close", () => {
+    console.log("close");
+    setTimeout(() => reconnect(), 5000);
+});
+serialPort.on("error", (err) => {
+    console.log("error");
+    console.log(err);
+    setTimeout(() => reconnect(), 5000);
+});
+serialPort.open();
+const reconnect = () => {
+    if (!serialPort.isOpen) {
+        serialPort.open();
+    }
+};
+serialRead_js_1.SerialRead(serialPort, eventEmitter);
 app.use(body_parser_1.default.json());
-commandRoutes_1.CommandRoutes(app, port, eventEmitter);
+commandRoutes_1.CommandRoutes(app, serialPort, eventEmitter);
+connectRoute_1.ConnectRoute(app, serialPort, eventEmitter);
 if (process.env.NODE_ENV === "production") {
     app.use(express_1.default.static("client/build"));
     app.get("*", (req, res) => {

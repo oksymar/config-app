@@ -2,14 +2,31 @@ import SerialPort from "serialport";
 
 let id = 0;
 
-export const SerialWrite = (port: SerialPort, msg: string | number) => {
+export type SerialWriteProps = {
+  serialPort: SerialPort;
+  command: string;
+  parameters: string;
+};
+
+export const SerialWrite = ({
+  serialPort,
+  command,
+  parameters
+}: SerialWriteProps) => {
   id = id + 1;
   if (id === Number.MAX_SAFE_INTEGER) {
     id = 0;
   }
-  const wrappedMsg = { id, msg };
 
-  const isWriteSucceed = port.write(
+  let wrappedMsg = {};
+
+  if (parameters) {
+    wrappedMsg = { id, command, parameters };
+  } else {
+    wrappedMsg = { id, command };
+  }
+
+  const isWriteSucceed = serialPort.write(
     `${JSON.stringify(wrappedMsg)}\r\n`,
     (err: TypeError) => {
       if (err) {

@@ -3,23 +3,24 @@ import express from "express";
 import SerialPort from "serialport";
 import { SerialWrite } from "../serialWrite";
 
-export const CommandRoutes = (
+export const ConnectRoute = (
   app: express.Application,
   serialPort: SerialPort,
   eventEmitter: events.EventEmitter
 ) => {
-  app.post("/api/command/custom", (req, res) => {
+  app.get("/api/connected", (req, res) => {
     const { isWriteSucceed, id } = SerialWrite({
-      command: req.body.command,
-      parameters: req.body.parameters,
+      command: "connected",
+      parameters: "",
       serialPort
     });
-    if (isWriteSucceed) {
+    if (serialPort.isOpen && isWriteSucceed) {
       eventEmitter.once(`msgId-${id}`, (data: string) => {
         res.status(200).send(data);
       });
     } else {
       eventEmitter.removeAllListeners(`msgId-${id}`);
+      res.status(200).send(JSON.stringify({ id, data: false }));
     }
   });
 };

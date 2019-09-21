@@ -1,25 +1,33 @@
 import React, { useState } from "react";
 import { Form, Segment, Checkbox } from "semantic-ui-react";
 import { StyledButton } from "./styles";
+import { HandleSendCustomCommandProps } from "../main-page/main-page";
 
 type FieldType = {
   name: string;
   value: string;
 };
 
-type PropsType = {
-  data: {
-    label: string;
-    parameters: Array<FieldType>;
-  };
+type MultiParameterProps = {
+  label: string;
+  command: string;
+  options: Array<FieldType>;
+  onSend: ({
+    command,
+    parameters
+  }: HandleSendCustomCommandProps) => Promise<string | void>;
 };
 
-export const MultiParameter: React.FC<PropsType> = props => {
+export const MultiParameter: React.FC<MultiParameterProps> = ({
+  label,
+  command,
+  options,
+  onSend
+}) => {
   const [parameters, setParameters] = useState<Array<string>>([]);
 
   const handleSubmit = () => {
-    //TODO: send msg to device
-    console.log(parameters);
+    onSend({ command, parameters: parameters.join(", ") });
   };
 
   const renderRadioButtons = (fields: Array<FieldType>) => {
@@ -30,7 +38,6 @@ export const MultiParameter: React.FC<PropsType> = props => {
           control={Checkbox}
           key={field.value}
           onChange={() => {
-            console.log("here");
             parameters.includes(field.value)
               ? setParameters(parameters.filter(e => e !== field.value))
               : setParameters([...parameters, field.value]);
@@ -44,9 +51,9 @@ export const MultiParameter: React.FC<PropsType> = props => {
     <Segment>
       <Form size="large" onSubmit={handleSubmit}>
         <Form.Group grouped>
-          <label>{props.data.label}</label>
-          {renderRadioButtons(props.data.parameters)}
-          <StyledButton floated="right" content="Save" size="large" />
+          <label>{label}</label>
+          {renderRadioButtons(options)}
+          <StyledButton floated="right" content="Send" size="large" />
         </Form.Group>
       </Form>
     </Segment>

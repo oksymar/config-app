@@ -1,18 +1,17 @@
 import React, { useState } from "react";
-import { Form, InputOnChangeData, Segment } from "semantic-ui-react";
-import { NumberInput } from "./styles";
+import { Form, Segment, Input } from "semantic-ui-react";
 import { HandleSendCustomCommandProps } from "../main-page/main-page";
 
-type SetParameterProps = {
+type GetParameterProps = {
   label: string;
   command: string;
   onSend: ({
     command,
     parameters
-  }: HandleSendCustomCommandProps) => Promise<string | void>;
+  }: HandleSendCustomCommandProps) => Promise<{ id: string; data: string }>;
 };
 
-export const SetParameter: React.FC<SetParameterProps> = ({
+export const GetParameter: React.FC<GetParameterProps> = ({
   label,
   command,
   onSend
@@ -20,7 +19,10 @@ export const SetParameter: React.FC<SetParameterProps> = ({
   const [parameterValue, setParameterValue] = useState("");
 
   const handleSubmit = () => {
-    onSend({ command, parameters: parameterValue });
+    setParameterValue("");
+    onSend({ command, parameters: "" }).then(({ data: value }) => {
+      value && setParameterValue(value);
+    });
   };
 
   return (
@@ -32,13 +34,11 @@ export const SetParameter: React.FC<SetParameterProps> = ({
         <Form.Group>
           <Form.Field
             width={13}
-            control={NumberInput}
+            control={Input}
             type="input"
             name={label}
             value={parameterValue}
-            onChange={(_e: React.ChangeEvent, data: InputOnChangeData) =>
-              setParameterValue(data.value)
-            }
+            readOnly
           />
           <Form.Button floated="right" content="Send" size="large" />
         </Form.Group>

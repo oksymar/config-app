@@ -1,8 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, FC } from "react";
 import { Form, Input, InputOnChangeData, Segment } from "semantic-ui-react";
 import axios from "axios";
 
-export const CustomCommand: React.FC = () => {
+type CustomCommandProps = {
+  onSend: (msg: string) => Promise<void>;
+};
+
+export const CustomCommand: FC<CustomCommandProps> = ({ onSend }) => {
   const [command, setCommand] = useState("");
 
   const handleChange = (e: React.ChangeEvent, data: InputOnChangeData) => {
@@ -10,7 +14,8 @@ export const CustomCommand: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    await axios.post("/api/command/custom", { command: command });
+    onSend(command);
+    setCommand("");
   };
 
   return (

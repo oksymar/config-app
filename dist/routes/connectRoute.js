@@ -1,21 +1,22 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const serialWrite_1 = require("../serialWrite");
-exports.CommandRoutes = (app, serialPort, eventEmitter) => {
-    app.post("/api/command/custom", (req, res) => {
+exports.ConnectRoute = (app, serialPort, eventEmitter) => {
+    app.get("/api/connected", (req, res) => {
         const { isWriteSucceed, id } = serialWrite_1.SerialWrite({
-            command: req.body.command,
-            parameters: req.body.parameters,
+            command: "connected",
+            parameters: "",
             serialPort
         });
-        if (isWriteSucceed) {
+        if (serialPort.isOpen && isWriteSucceed) {
             eventEmitter.once(`msgId-${id}`, (data) => {
                 res.status(200).send(data);
             });
         }
         else {
             eventEmitter.removeAllListeners(`msgId-${id}`);
+            res.status(200).send(JSON.stringify({ id, data: false }));
         }
     });
 };
-//# sourceMappingURL=commandRoutes.js.map
+//# sourceMappingURL=connectRoute.js.map
