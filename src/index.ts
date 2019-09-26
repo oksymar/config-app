@@ -11,7 +11,8 @@ const app = express();
 const portNumber = 9000; // default port to listen
 const eventEmitter = new events.EventEmitter();
 
-const serialPortName = "COM6";
+// const serialPortName = "COM6";
+const serialPortName = "/dev/ttyS1";
 const serialPort = new SerialPort(serialPortName, {
   autoOpen: false,
   baudRate: 9600
@@ -53,4 +54,6 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-app.listen(portNumber);
+app.listen(portNumber, () =>
+  console.log(`Express server listening on port ${portNumber}`)
+);

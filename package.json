@@ -11,8 +11,10 @@
     "start": "set NODE_ENV=development&& node .",
     "dev:start": "npm-run-all build start",
     "prod:start": "set NODE_ENV=production&& node .",
+    "prod:linux:start": "export NODE_ENV=production&& node .",
     "dev": "nodemon --watch src -e ts --exec npm run dev:start",
-    "prod": "npm-run-all build prod:start"
+    "prod": "npm-run-all build prod:start",
+    "prod:linux": "npm-run-all build prod:linux:start"
   },
   "author": "",
   "license": "ISC",

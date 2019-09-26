@@ -1,0 +1,15 @@
+{
+  "name": "plug",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ."
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@serialport/parser-readline": "^2.0.2",
+    "serialport": "^7.1.5"
+  }
+}
